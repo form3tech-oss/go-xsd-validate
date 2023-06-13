@@ -1,1 +1,3 @@
 *.go_
+tools/
+workspace.code-workspace
