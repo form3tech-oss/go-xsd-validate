@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/terminalstatic/go-xsd-validate"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	xsdvalidate "github.com/form3tech-oss/go-xsd-validate"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 )
 
 var xsdHandler *xsdvalidate.XsdHandler

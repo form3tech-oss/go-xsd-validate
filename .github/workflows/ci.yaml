@@ -5,8 +5,25 @@ on:
   pull_request:
 
 jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0
+      - name: Setup Go
+        uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753 # v4.0.1
+        with:
+          go-version-file: "go.mod"
+      - name: Lint
+        id: lint
+        run: make lint
+
   test:
-    name: Run tests
+    name: test
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -23,3 +40,32 @@ jobs:
       - name: Run tests
         id: run-tests
         run: make test
+
+  semgrep:
+    name: semgrep
+    runs-on: ubuntu-latest
+
+    container:
+      image: returntocorp/semgrep@sha256:db05a8753f5bbd1536b1a1cbd60c77dfc99fea2dc9fca411b4dee288c3d3fd93 # returntocorp/semgrep:sha-7725552
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0
+      - run: semgrep ci
+        env:
+          # Add the rules that Semgrep uses by setting the SEMGREP_RULES environment variable.
+          SEMGREP_RULES: p/default # more at semgrep.dev/explore
+  tag:
+    needs: ['lint', 'test', 'semgrep']
+    name: Tag
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'push' && github.ref_name == 'master'
+    steps:
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0
+        with:
+          fetch-depth: 0
+
+      - name: Bump version and push tag
+        uses: mathieudutour/github-tag-action@fcfbdceb3093f6d85a3b194740f8c6cec632f4e2 # v6.1
+        with:
+          github_token: "${{ secrets.GITHUB_TOKEN }}"
