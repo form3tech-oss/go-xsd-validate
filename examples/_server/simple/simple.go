@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/terminalstatic/go-xsd-validate"
+	xsdvalidate "github.com/form3tech-oss/go-xsd-validate"
 )
 
 var xsdHandler *xsdvalidate.XsdHandler
