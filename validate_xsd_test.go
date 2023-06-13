@@ -1,17 +1,19 @@
-//go:build apitest
-// +build apitest
-
 package xsdvalidate
 
 import (
+	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
+	"strings"
 	"testing"
 )
 
 func TestAddressUrlHandlerPass(t *testing.T) {
-	Init()
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
 	defer Cleanup()
 
 	handler, err := NewXsdHandlerUrl("./examples/test_address.xsd", ParsErrVerbose)
@@ -23,7 +25,10 @@ func TestAddressUrlHandlerPass(t *testing.T) {
 }
 
 func TestXsdUrlHandlerPass(t *testing.T) {
-	Init()
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
 	defer Cleanup()
 
 	handler, err := NewXsdHandlerUrl("./examples/test1_split.xsd", ParsErrVerbose)
@@ -34,7 +39,10 @@ func TestXsdUrlHandlerPass(t *testing.T) {
 	defer handler.Free()
 }
 func TestXsdUrlHandlerFail(t *testing.T) {
-	Init()
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
 	defer Cleanup()
 
 	handler, err := NewXsdHandlerUrl("examples/test1_fail.xsd", ParsErrVerbose)
@@ -45,7 +53,10 @@ func TestXsdUrlHandlerFail(t *testing.T) {
 	defer handler.Free()
 }
 func TestXmlMemHandlerPass(t *testing.T) {
-	Init()
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
 	defer Cleanup()
 
 	xmlFilePass, err := os.Open("examples/test1_pass.xml")
@@ -55,7 +66,7 @@ func TestXmlMemHandlerPass(t *testing.T) {
 	}
 	defer xmlFilePass.Close()
 
-	inXml, _ := ioutil.ReadAll(xmlFilePass)
+	inXml, _ := io.ReadAll(xmlFilePass)
 
 	handler, err := NewXmlHandlerMem(inXml, ParsErrDefault)
 	if err != nil {
@@ -66,7 +77,10 @@ func TestXmlMemHandlerPass(t *testing.T) {
 }
 
 func TestXmlMemHandlerFail(t *testing.T) {
-	Init()
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
 	defer Cleanup()
 
 	xmlFilePass, err := os.Open("examples/test1_fail1.xml")
@@ -75,7 +89,7 @@ func TestXmlMemHandlerFail(t *testing.T) {
 	}
 	defer xmlFilePass.Close()
 
-	inXml, _ := ioutil.ReadAll(xmlFilePass)
+	inXml, _ := io.ReadAll(xmlFilePass)
 
 	handler, err := NewXmlHandlerMem(inXml, ParsErrVerbose)
 	if err == nil {
@@ -87,7 +101,10 @@ func TestXmlMemHandlerFail(t *testing.T) {
 }
 
 func TestValidateWithXsdHandlerPass(t *testing.T) {
-	Init()
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
 	defer Cleanup()
 
 	xsdhandler, err := NewXsdHandlerUrl("examples/test1_split.xsd", ParsErrDefault)
@@ -103,7 +120,7 @@ func TestValidateWithXsdHandlerPass(t *testing.T) {
 		return
 	}
 	defer xmlFile.Close()
-	inXml, _ := ioutil.ReadAll(xmlFile)
+	inXml, _ := io.ReadAll(xmlFile)
 
 	xmlhandler, err := NewXmlHandlerMem(inXml, ParsErrDefault)
 	if err != nil {
@@ -121,7 +138,10 @@ func TestValidateWithXsdHandlerPass(t *testing.T) {
 }
 
 func TestValidateWithXsdHandlerHttpPass(t *testing.T) {
-	Init()
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
 	defer Cleanup()
 
 	xsdhandler, err := NewXsdHandlerUrl("http://schemas.opengis.net/cat/csw/3.0/cswAll.xsd", ParsErrDefault)
@@ -137,7 +157,7 @@ func TestValidateWithXsdHandlerHttpPass(t *testing.T) {
 		return
 	}
 	defer xmlFile.Close()
-	inXml, _ := ioutil.ReadAll(xmlFile)
+	inXml, _ := io.ReadAll(xmlFile)
 
 	xmlhandler, err := NewXmlHandlerMem(inXml, ParsErrVerbose)
 	if err != nil {
@@ -155,7 +175,10 @@ func TestValidateWithXsdHandlerHttpPass(t *testing.T) {
 }
 
 func TestValidateWithXsdHandlerFail(t *testing.T) {
-	Init()
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
 	defer Cleanup()
 
 	xsdhandler, err := NewXsdHandlerUrl("examples/test1_split.xsd", ParsErrVerbose)
@@ -171,7 +194,7 @@ func TestValidateWithXsdHandlerFail(t *testing.T) {
 		return
 	}
 	defer xmlFile.Close()
-	inXml, _ := ioutil.ReadAll(xmlFile)
+	inXml, _ := io.ReadAll(xmlFile)
 
 	xmlhandler, err := NewXmlHandlerMem(inXml, ParsErrDefault)
 	if err != nil {
@@ -188,7 +211,10 @@ func TestValidateWithXsdHandlerFail(t *testing.T) {
 }
 
 func TestValidateMemWithXsdHandlerPass(t *testing.T) {
-	Init()
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
 	defer Cleanup()
 
 	xsdhandler, err := NewXsdHandlerUrl("examples/test1_split.xsd", ParsErrDefault)
@@ -204,7 +230,7 @@ func TestValidateMemWithXsdHandlerPass(t *testing.T) {
 		return
 	}
 	defer xmlFile.Close()
-	inXml, _ := ioutil.ReadAll(xmlFile)
+	inXml, _ := io.ReadAll(xmlFile)
 
 	err = xsdhandler.ValidateMem(inXml, ParsErrDefault)
 	if err != nil {
@@ -215,7 +241,10 @@ func TestValidateMemWithXsdHandlerPass(t *testing.T) {
 }
 
 func TestValidateMemWithXsdHandlerFail(t *testing.T) {
-	Init()
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
 	defer Cleanup()
 
 	xsdhandler, err := NewXsdHandlerUrl("examples/test1_split.xsd", ParsErrVerbose)
@@ -231,12 +260,111 @@ func TestValidateMemWithXsdHandlerFail(t *testing.T) {
 		return
 	}
 	defer xmlFile.Close()
-	inXml, _ := ioutil.ReadAll(xmlFile)
+	inXml, _ := io.ReadAll(xmlFile)
 
 	err = xsdhandler.ValidateMem(inXml, ParsErrDefault)
 	fmt.Printf("Error OK:\n %s %s\n", t.Name(), err.Error())
 	if err == nil {
 		t.Fail()
+	}
+}
+
+func TestPathInError_LeafOverflow(t *testing.T) {
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
+	defer Cleanup()
+
+	for length := 1; length < 1048; length++ {
+		rootElementName := strings.Repeat("a", length)
+
+		xsdTemplate := `<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="%s" type="xs:int" />
+</xs:schema>
+`
+
+		xsdhandler, err := NewXsdHandlerMem([]byte(fmt.Sprintf(xsdTemplate, rootElementName)), ParsErrDefault)
+		if err != nil {
+			fmt.Printf("Error: %s %s\n", t.Name(), err.Error())
+			t.Fail()
+		}
+		defer xsdhandler.Free()
+
+		template := `<?xml version="1.0" encoding="UTF-8" ?><%s>a</%s>`
+
+		err = xsdhandler.ValidateMem([]byte(fmt.Sprintf(template, rootElementName, rootElementName)), ValidErrDefault)
+		if err == nil {
+			t.Fail()
+		}
+		var validErr ValidationError
+		if errors.As(err, &validErr) {
+			if validErr.Errors[0].Path != rootElementName {
+				t.Errorf("expected path to match for length %d", length)
+				t.Fail()
+			}
+		}
+	}
+}
+
+func TestPathInError_RootOverflow(t *testing.T) {
+	err := Init()
+	if err != nil {
+		panic(err)
+	}
+	defer Cleanup()
+
+	for length := 1; length < 1048; length++ {
+		rootElementName := strings.Repeat("a", length)
+
+		xsdTemplate := `<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="%s">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="quantity" type="xs:int" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="orderid" use="required"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
+`
+
+		xsdhandler, err := NewXsdHandlerMem([]byte(fmt.Sprintf(xsdTemplate, rootElementName)), ParsErrDefault)
+		if err != nil {
+			fmt.Printf("Error: %s %s\n", t.Name(), err.Error())
+			t.Fail()
+		}
+		defer xsdhandler.Free()
+
+		template := `<?xml version="1.0" encoding="UTF-8" ?>
+<%s orderid="889923">
+	<item>
+		<quantity>a</quantity>
+	</item>
+</%s>
+`
+
+		err = xsdhandler.ValidateMem([]byte(fmt.Sprintf(template, rootElementName, rootElementName)), ValidErrDefault)
+		if err == nil {
+			t.Fail()
+		}
+		var validErr ValidationError
+		if errors.As(err, &validErr) {
+			expectedPath := fmt.Sprintf("%s/item/quantity", rootElementName)
+
+			if validErr.Errors[0].Path != expectedPath {
+				t.Errorf("expected path to match for length %d: %q", length, validErr.Errors[0].Path)
+				t.Fail()
+			}
+		}
 	}
 }
 

@@ -1,9 +1,8 @@
 // Package xsdvalidate is a go package for xsd validation that utilizes libxml2.
 
-//The goal of this package is to preload xsd files into memory and to validate xml (fast) using libxml2, like post bodys of xml service endpoints or api routers. At the time of writing, similar packages I found on github either didn't provide error details or got stuck under load. In addition to providing error strings it also exposes some fields of libxml2 return structs.
+// The goal of this package is to preload xsd files into memory and to validate xml (fast) using libxml2, like post bodys of xml service endpoints or api routers. At the time of writing, similar packages I found on github either didn't provide error details or got stuck under load. In addition to providing error strings it also exposes some fields of libxml2 return structs.
 package xsdvalidate
 
-import "C"
 import (
 	"sync"
 	"sync/atomic"
@@ -16,10 +15,7 @@ type guard struct {
 }
 
 func (guard *guard) isInitialized() bool {
-	if atomic.LoadUint32(&guard.initialized) == 0 {
-		return false
-	}
-	return true
+	return atomic.LoadUint32(&guard.initialized) == 1
 }
 
 func (guard *guard) setInitialized(b bool) {
@@ -65,12 +61,18 @@ func Init() error {
 // InitWithGc initializes lbxml2 with a goroutine that runs the go gc every d duration.
 // Not required but might help to keep the memory footprint at bay when doing tons of validations.
 func InitWithGc(d time.Duration) {
-	Init()
+	Init() // nolint:errcheck
 	quit = make(chan struct{})
 	go gcTicker(d, quit)
 }
 
 // Cleanup cleans up libxml2 memory and finishes gc goroutine when running.
+// It should only be called once at application exit. It calls `xmlCleanupParser`
+// under the hood, which has the following notes:
+//
+// > This function name is somewhat misleading. It does not clean up parser state, it cleans up memory allocated by the library itself.
+//
+// > In case of doubt abstain from calling this function or do it just before calling exit() to avoid leak reports from valgrind !
 func Cleanup() {
 	g.Lock()
 	defer g.Unlock()
